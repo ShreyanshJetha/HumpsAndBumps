@@ -628,7 +628,7 @@ public class SuspensionSportcar : MonoBehaviour {
 		json["turn_left"] = GameObject.Find("WishboneTargetFR").transform.localEulerAngles.z <= 89;
         // Convert the JSON object to a string
         string jsonString = json.ToString();
-		StartCoroutine(Upload(jsonString));
+		// StartCoroutine(Upload(jsonString));
 		//Debug.Log(string.Format("Right: {0}, Left: {1} - {2}", json["turn_right"], json["turn_left"], GameObject.Find("WishboneTargetFR").transform.localEulerAngles.z ));
 		//Debug.Log(GameObject.Find("AbsorberCapRR").transform.localPosition.z);
 	}
