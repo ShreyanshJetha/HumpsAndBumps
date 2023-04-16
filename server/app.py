@@ -42,16 +42,24 @@ threading.Thread(target=app.run, kwargs=dict(host='0.0.0.0', port=5000)).start()
 # Set up the plot
 fig, ax = plt.subplots()
 
-# Set up the attributes
+# Set up the attributes. Excludes line, legend
 attributes = {
-    'SpringFR' : {'_': [], 'color': 'red'}, 
-    'SpringFL': {'_': [], 'color': 'blue'}, 
-    'WishboneTargetFR' : {'_': [], 'color': 'yellow'}, 
-    'WishboneTargetFL': {'_': [], 'color': 'green'}
+    'SpringFR' : {'ydata': [], 'color': 'red'},
+    'SpringFL': {'ydata': [], 'color': 'blue'}, 
+    'WishboneTargetFR' : {'ydata': [], 'color': 'gold'}, 
+    'WishboneTargetFL': {'ydata': [], 'color': 'green'}
 }
+
+
+
 
 for name, attribute in attributes.items():
     attribute['line'], = ax.plot([], [], lw=1, color=attribute['color'])
+    # Initiate individual legend
+    plt.plot([], [], color=attribute['color'], lw=1, markersize=1, label=name)
+
+# Spawn all legends
+legend = plt.legend(loc=0)
 
 print(attributes)
 # Set up the data
@@ -70,15 +78,16 @@ def update(num):
     xdata.append(elapsed_time)
 
     # Update the plot
-    for name, attribute in attributes.items():
-        attribute['_'].append(data_queue[-1][name])
-        attribute['line'].set_data(xdata, attribute['_'])
+    for i, (name, attribute) in enumerate(attributes.items()):
+        attribute['ydata'].append(data_queue[-1][name])
+        attribute['line'].set_data(xdata, attribute['ydata'])
+        legend.get_texts()[i].set_text(f'{name} {data_queue[-1][name]}')
 
     ax.relim()
     ax.autoscale_view()
     return (attribute['line'] for name, attribute in attributes.items())
 
-ani = animation.FuncAnimation(fig, update, blit=True, interval=100)
+ani = animation.FuncAnimation(fig, update, interval=100)
 
 # Customize the x-axis
 ax.set_xlabel("Time (s)")
