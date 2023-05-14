@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -614,6 +614,17 @@ public class SuspensionSportcar : MonoBehaviour {
 		request.Dispose();
     }
 
+	bool IsAbnormal(RaycastHit hit) {
+		if (hit.collider.gameObject.transform.parent.name.Contains("Hump"))
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+	} 
+
 	void Update() {
 		JObject json = new JObject();
 		json["SpringFR"] = GameObject.Find("SpringFR").transform.localScale.z;
@@ -626,10 +637,33 @@ public class SuspensionSportcar : MonoBehaviour {
 		json["WishboneRLTarget"] = GameObject.Find("WishboneRLTarget").transform.localPosition.z;
 		json["turn_right"] = GameObject.Find("WishboneTargetFR").transform.localEulerAngles.z >= 90;
 		json["turn_left"] = GameObject.Find("WishboneTargetFR").transform.localEulerAngles.z <= 89;
-        // Convert the JSON object to a string
+
+		// Cast a ray from the target game object's position in the downward direction
+        RaycastHit hit;
+        if ((Physics.Raycast(GameObject.Find("WheelFR").transform.position, Vector3.down, out hit, Mathf.Infinity) && IsAbnormal(hit)) ||
+			(Physics.Raycast(GameObject.Find("WheelFL").transform.position, Vector3.down, out hit, Mathf.Infinity) && IsAbnormal(hit)) ||
+			(Physics.Raycast(GameObject.Find("WheelRR").transform.position, Vector3.down, out hit, Mathf.Infinity) && IsAbnormal(hit)) ||
+			(Physics.Raycast(GameObject.Find("WheelRL").transform.position, Vector3.down, out hit, Mathf.Infinity) && IsAbnormal(hit)) )
+        {
+            // The ray hit something - do something with the hit information
+            // Debug.Log("Hit object: " + hit.collider.gameObject.transform.parent.name);
+            // Debug.Log("Hit point: " + hit.point);
+            // Debug.Log("Hit normal: " + hit.normal);
+			Debug.Log("Abnormal");
+			json["state"] = "abnormal";
+			
+        }
+		else
+		{
+			Debug.Log("Normal");
+			json["state"] = "normal";
+		}
+
+		// Convert the JSON object to a string
         string jsonString = json.ToString();
-		// StartCoroutine(Upload(jsonString));
+		StartCoroutine(Upload(jsonString));
 		//Debug.Log(string.Format("Right: {0}, Left: {1} - {2}", json["turn_right"], json["turn_left"], GameObject.Find("WishboneTargetFR").transform.localEulerAngles.z ));
 		//Debug.Log(GameObject.Find("AbsorberCapRR").transform.localPosition.z);
+
 	}
 }
